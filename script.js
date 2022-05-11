@@ -15,7 +15,6 @@ WRAP.appendChild(virtKeyboard);
 initKeyboard ();
 let result = 0;
 
-
 // INITKEYBOARD 
 function initKeyboard () {
     textArea.textContent = "0";
@@ -36,18 +35,188 @@ function createButtons (key) {
     else {btnGenerated.textContent = key};
     return btnGenerated;
 }; 
+
 // LISTENER KEYBOARD
 document.addEventListener('keydown', event => {  
-
     if(BTNS.includes(event.key)) {
-            let old = textArea.textContent
-            document.getElementById(event.key).classList.add('pressed')
-            switch(event.key) {
-                case "Backspace": textArea.textContent = old.substring(0, old.length-1); break;
-                case "Delete": textArea.textContent = "0"; break;
-                case "Enter": textArea.textContent = old + "\n"; break;
-                
-                default: textArea.textContent = `${old}${event.key}`; break;
+            document.getElementById(event.key).classList.add('pressed');
+
+        switch(event.key) {
+            case "Backspace":
+                let lastSymbol = textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length);
+                if(arr.includes(lastSymbol)) { // + <
+                    character = "";
+                }
+                if (textArea.textContent.length === 1 ||                                                // 1 <
+                    textArea.textContent.length === 2 && textArea.textContent.substring(0, 1) == "-") { // -1 <
+                    textArea.textContent = "0";
+                    character = "";
+                    firstNumber = "";
+                } 
+                else {
+                    textArea.textContent = textArea.textContent.substring(0, textArea.textContent.length-1);
+                    if (textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length) == ".") { // 11. <
+                        if (!character) {
+                            firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
+                        }
+                        textArea.textContent = textArea.textContent.substring(0, textArea.textContent.length-1);
+                    } 
+                    else {                                                                                                    // 11 <
+                        if (!character) {
+                            firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
+                            if(firstNumber == 0) {                                                                           // 0.00001 <
+                                textArea.textContent = "0";
+                            }
+                        }
+                    }
+                }
+            break;
+            case "Delete":
+                textArea.textContent = "0";
+                character = "";
+                firstNumber = "";
+            break;
+            case "Enter":
+                if(firstNumber === "") {// =
+                    textArea.textContent = `${textArea.textContent}`;
+                    firstNumber = Number(0);    
+                } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + =
+                    result = calculation(firstNumber, firstNumber, character);
+                    firstNumber = result;
+                    textArea.textContent = `${result}`;
+                    character = "";
+                } else if (firstNumber && character || firstNumber === 0 && character) { // 2 + 1 =
+                    let lengthOfFirst = String(firstNumber).length;
+                    secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
+                    result = calculation(firstNumber, secondNumber, character);
+                    textArea.textContent = `${result}`;
+                    firstNumber = result;
+                    character = "";
+                } else { // 2 =
+                    textArea.textContent = `${textArea.textContent}`;
+                    character = "";
+                };
+            break;
+            case "-": 
+            if(firstNumber === "") {// -
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "-";
+                firstNumber = Number(0);
+            } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + -
+                textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.key}`;
+                character = "-";
+            } else if (firstNumber && character || firstNumber === 0 && character) { // 2 - 1 
+                let lengthOfFirst = String(firstNumber).length;
+                secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
+                result = calculation(firstNumber, secondNumber, character);
+                textArea.textContent = `${result}${event.key}`;
+                firstNumber = result;
+                character = "-";
+            } else { // 2 -
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "-";
+            }; break;
+            case "+": 
+            if(firstNumber === "") {// +
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "+";
+                firstNumber = Number(0);
+            } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + +
+                textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.key}`;
+                character = "+";
+            } else if (firstNumber && character || firstNumber === 0 && character) { // 2 + 1 
+                let lengthOfFirst = String(firstNumber).length;
+                secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
+                result = calculation(firstNumber, secondNumber, character);
+                textArea.textContent = `${result}${event.key}`;
+                firstNumber = result;
+                character = "+";
+            } 
+            else { // 2 +
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "+";
+            }; break;
+            case "*": 
+            if(firstNumber === "") {// *
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "*";
+                firstNumber = Number(0);
+            } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + *
+                textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.key}`;
+                character = "*";
+            } else if (firstNumber && character || firstNumber === 0 && character) { // 2 * 1 
+                let lengthOfFirst = String(firstNumber).length;
+                secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
+                result = calculation(firstNumber, secondNumber, character);
+                textArea.textContent = `${result}${event.key}`;
+                firstNumber = result;
+                character = "*";
+            } else { // 2 *
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "*";
+            }; break;
+            case "/": 
+            if(firstNumber === "") {// /
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "/";
+                firstNumber = Number(0);
+            } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + /
+                textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.key}`;
+                character = "/";
+            } else if (firstNumber && character || firstNumber === 0 && character) { // 2 / 1 
+                let lengthOfFirst = String(firstNumber).length;
+                secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
+                result = calculation(firstNumber, secondNumber, character);
+                textArea.textContent = `${result}${event.key}`;
+                firstNumber = result;
+                character = "/";
+            } else { // 2 /
+                textArea.textContent = `${textArea.textContent}${event.key}`;
+                character = "/";
+            };
+            break;
+            // CASE "%"
+            case " ": 
+            if(firstNumber === "") {// %
+                textArea.textContent = `${textArea.textContent}`;
+                firstNumber = Number(0)    
+            } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + %
+                textArea.textContent = `${textArea.textContent}`;
+            } else if (firstNumber && character || firstNumber === 0 && character) { // 2 + 1 %
+                let lengthOfFirst = String(firstNumber).length;
+                secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
+                result = calculationPercent(firstNumber, secondNumber, character);
+                textArea.textContent = `${result}`;
+                firstNumber = result;
+                character = "";
+            } else { // 2 %
+                result = firstNumber < 0 ? Number(0) : firstNumber / 100;
+                textArea.textContent = `${result}`;
+                firstNumber = result;
+                character = "";
+            };
+            break;
+            default:
+                    if (!character) { //22
+                        if (event.key === "." && textArea.textContent.substring(0, 1) == 0) { // 0.
+                            firstNumber = 0;
+                            textArea.textContent = `${textArea.textContent}${event.key}`;
+                        }
+                        else if (textArea.textContent == 0 && textArea.textContent.length > 1) { // 0.1 или 0.001
+                            textArea.textContent = `${textArea.textContent}${event.key}`;
+                        }
+                        else if (textArea.textContent == 0 || textArea.textContent == result) { // zeroing
+                            textArea.textContent = `${event.key}`
+                        }
+                        else {
+                            textArea.textContent = `${textArea.textContent}${event.key}`; // default
+                        }
+                        firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
+                    }
+                    else {                                                                           // ...+ 22
+                        textArea.textContent = `${textArea.textContent}${event.key}`;
+                    };
+                 break;
             }               
     }   
 });
@@ -59,13 +228,17 @@ virtKeyboard.addEventListener('animationend', (animationEvent) => {
 // CALCULATION FUNCTIONS
 function calculation(firstNum, secondNum, char) {
     let res
-    if (char == "+") {res = firstNum + secondNum}
-    if (char == "-") {res = firstNum - secondNum}
-    if (char == "*") {res = firstNum * secondNum} 
-    if (char == "/") {res = Math.round(firstNum / secondNum * 100000000) / 100000000}   
-    return res
-}
-
+    if (char == "+") {res = firstNum + secondNum};
+    if (char == "-") {res = firstNum - secondNum};
+    if (char == "*") {res = firstNum * secondNum}; 
+    if (char == "/") {
+        if (secondNum === 0) {
+            return "divizion by null!"
+        } 
+        res = Math.round(firstNum / secondNum * 100000000) / 100000000;
+    };   
+    return res;
+};
 function calculationPercent(firstNum, secondNum, char) {
     let res
     if (char == "+") {res = firstNum + firstNum * secondNum / 100}
@@ -73,17 +246,15 @@ function calculationPercent(firstNum, secondNum, char) {
     if (char == "*") {res = firstNum * secondNum / 100} 
     if (char == "/") {res = firstNum / (secondNum / 100)}   
     return res
-}
+};
 
 // LISTENER VIRTUAL KEYBOARD
 let character = "";
 let firstNumber = "";
 let secondNumber;
+const arr = ["+", "-", "*", "/"];
 
-const arr = ["+", "-", "*", "/"]
 virtKeyboard.addEventListener('click', event => {
-    
-    
     if(event.target.classList.contains('letter-key')) {
         event.target.classList.add('pressed');
        
@@ -92,10 +263,10 @@ virtKeyboard.addEventListener('click', event => {
             case "Backspace":
                 let lastSymbol = textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length);
                 if(arr.includes(lastSymbol)) { // + <
-                    character = ""
+                    character = "";
                 }
-                else if (textArea.textContent.length === 1 ||        // 1 <
-                    textArea.textContent.length === 2 && textArea.textContent.substring(0, 1) == "-") { // 1- <
+                if (textArea.textContent.length === 1 ||                                                // 1 <
+                    textArea.textContent.length === 2 && textArea.textContent.substring(0, 1) == "-") { // -1 <
                     textArea.textContent = "0";
                     character = "";
                     firstNumber = "";
@@ -103,17 +274,18 @@ virtKeyboard.addEventListener('click', event => {
                 else {
                     textArea.textContent = textArea.textContent.substring(0, textArea.textContent.length-1);
                     if (textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length) == ".") { // 11. <
-                        console.log('была точка', character)
-                        if (!character) {firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));}
-                        textArea.textContent = textArea.textContent.substring(0, textArea.textContent.length-1);
-                        if (textArea.textContent.length === 0) {
-                            textArea.textContent = "0";
-                            character = "";
-                            firstNumber = "";
+                        if (!character) {
+                            firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
                         }
+                        textArea.textContent = textArea.textContent.substring(0, textArea.textContent.length-1);
                     } 
-                    else {
-                        if (!character) {firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));}
+                    else {                                                                                                    // 11 <
+                        if (!character) {
+                            firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
+                            if(firstNumber == 0) {                                                                           // 0.00001 <
+                                textArea.textContent = "0";
+                            }
+                        }
                     }
                 }
             break;
@@ -125,29 +297,23 @@ virtKeyboard.addEventListener('click', event => {
                  firstNumber = "";
             break;
         
-
             // CASE -
             case "-": 
             if(firstNumber === "") {// -
-                console.log('- *1') 
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "-";
-                firstNumber = Number(0)
+                firstNumber = Number(0);
             } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + -
-                console.log('- *2') 
                 textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.target.id}`;
                 character = "-";
             } else if (firstNumber && character || firstNumber === 0 && character) { // 2 - 1 
-                console.log('- *3')
                 let lengthOfFirst = String(firstNumber).length;
                 secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
-                result = calculation(firstNumber, secondNumber, character)
-                
+                result = calculation(firstNumber, secondNumber, character);
                 textArea.textContent = `${result}${event.target.id}`;
                 firstNumber = result;
                 character = "-";
             } else { // 2 -
-                console.log('- *4')
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "-";
             }; break;
@@ -155,25 +321,21 @@ virtKeyboard.addEventListener('click', event => {
             // CASE +
             case "+": 
             if(firstNumber === "") {// +
-                console.log('+ *1') 
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "+";
-                firstNumber = Number(0)
+                firstNumber = Number(0);
             } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + +
-                console.log('+ *2') 
                 textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.target.id}`;
                 character = "+";
             } else if (firstNumber && character || firstNumber === 0 && character) { // 2 + 1 
-                console.log('+ *3')
                 let lengthOfFirst = String(firstNumber).length;
                 secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
-                result = calculation(firstNumber, secondNumber, character)
+                result = calculation(firstNumber, secondNumber, character);
                 textArea.textContent = `${result}${event.target.id}`;
                 firstNumber = result;
                 character = "+";
             } 
             else { // 2 +
-                console.log('+ *4')
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "+";
             }; break;
@@ -181,24 +343,20 @@ virtKeyboard.addEventListener('click', event => {
             // CASE *
             case "*": 
             if(firstNumber === "") {// *
-                console.log('* *1') 
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "*";
-                firstNumber = Number(0)
+                firstNumber = Number(0);
             } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + *
-                console.log('* *2') 
                 textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.target.id}`;
                 character = "*";
             } else if (firstNumber && character || firstNumber === 0 && character) { // 2 * 1 
-                console.log('* *3')
                 let lengthOfFirst = String(firstNumber).length;
                 secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
-                result = calculation(firstNumber, secondNumber, character)
+                result = calculation(firstNumber, secondNumber, character);
                 textArea.textContent = `${result}${event.target.id}`;
                 firstNumber = result;
                 character = "*";
             } else { // 2 *
-                console.log('* *4')
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "*";
             }; break;
@@ -206,120 +364,91 @@ virtKeyboard.addEventListener('click', event => {
             // CASE "/"
             case "/": 
             if(firstNumber === "") {// /
-                console.log('/ *1') 
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "/";
-                firstNumber = Number(0)
+                firstNumber = Number(0);
             } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + /
-                console.log('/ *2') 
                 textArea.textContent = `${textArea.textContent.substring(0, textArea.textContent.length-1)}${event.target.id}`;
                 character = "/";
             } else if (firstNumber && character || firstNumber === 0 && character) { // 2 / 1 
-                console.log('/ *3')
                 let lengthOfFirst = String(firstNumber).length;
                 secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
-                result = calculation(firstNumber, secondNumber, character)
+                result = calculation(firstNumber, secondNumber, character);
                 textArea.textContent = `${result}${event.target.id}`;
                 firstNumber = result;
                 character = "/";
             } else { // 2 /
-                console.log('/ *4')
                 textArea.textContent = `${textArea.textContent}${event.target.id}`;
                 character = "/";
-            }; break;
+            };
+            break;
 
             // CASE "="
             case "Enter": 
             if(firstNumber === "") {// =
-                console.log('= *1') 
                 textArea.textContent = `${textArea.textContent}`;
-                firstNumber = Number(0)
-                
+                firstNumber = Number(0);    
             } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + =
-                console.log('= *2') 
-                result = calculation(firstNumber, firstNumber, character)
+                result = calculation(firstNumber, firstNumber, character);
                 firstNumber = result;
                 textArea.textContent = `${result}`;
                 character = "";
-
             } else if (firstNumber && character || firstNumber === 0 && character) { // 2 + 1 =
-                console.log('= *3')
                 let lengthOfFirst = String(firstNumber).length;
                 secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
-                result = calculation(firstNumber, secondNumber, character)
-                
+                result = calculation(firstNumber, secondNumber, character);
                 textArea.textContent = `${result}`;
                 firstNumber = result;
                 character = "";
-
             } else { // 2 =
-                console.log('= *4')
                 textArea.textContent = `${textArea.textContent}`;
                 character = "";
-            }; break;
+            };
+            break;
 
             // CASE "%"
             case " ": 
             if(firstNumber === "") {// %
-                console.log('% *1') 
                 textArea.textContent = `${textArea.textContent}`;
-                firstNumber = Number(0)
-                
+                firstNumber = Number(0)    
             } else if (arr.includes(textArea.textContent.substring(textArea.textContent.length-1, textArea.textContent.length))) {// + %
-                console.log('= *2') 
                 textArea.textContent = `${textArea.textContent}`;
-
             } else if (firstNumber && character || firstNumber === 0 && character) { // 2 + 1 %
-                console.log('= *3')
                 let lengthOfFirst = String(firstNumber).length;
                 secondNumber = Number(textArea.textContent.substring(lengthOfFirst+1, textArea.textContent.length));
-                result = calculationPercent(firstNumber, secondNumber, character)
+                result = calculationPercent(firstNumber, secondNumber, character);
                 textArea.textContent = `${result}`;
                 firstNumber = result;
                 character = "";
-
             } else { // 2 %
-                console.log('= *4')
                 result = firstNumber < 0 ? Number(0) : firstNumber / 100;
                 textArea.textContent = `${result}`;
                 firstNumber = result;
                 character = "";
-            }; break;
-
-            // CASE "."
-            // case ".":
-            //     console.log('textArea.textContent.length', textArea.textContent.length)
-            //     if (textArea.textContent.length === 1 && !firstNumber) {
-            //         textArea.textContent = `${textArea.textContent}${event.target.id}`;
-            //         firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
-            //     }
-            //     console.log('textArea.textContent.length', textArea.textContent.length)
-            // break;
+            };
+            break;
 
         default: 
         if (!character) { //22
-            if (textArea.textContent == 0  || textArea.textContent === result) {
+            if (event.target.id === "." && textArea.textContent.substring(0, 1) == 0) { // 0.
+                firstNumber = 0;
+                textArea.textContent = `${textArea.textContent}${event.target.id}`;
+            }
+            else if (textArea.textContent == 0 && textArea.textContent.length > 1) { // 0.1 или 0.001
+                textArea.textContent = `${textArea.textContent}${event.target.id}`;
+            }
+            else if (textArea.textContent == 0 || textArea.textContent == result) { // zeroing
                 textArea.textContent = `${event.target.id}`
-                console.log('LETTER 1')
             }
             else {
-                textArea.textContent = `${textArea.textContent}${event.target.id}`;
-                console.log('LETTER 2')
+                textArea.textContent = `${textArea.textContent}${event.target.id}`; // default
             }
             firstNumber = Number(textArea.textContent.substring(0, textArea.textContent.length));
         }
-        
-        else if(character) { // ...+ 22
+        else {                                                                           // ...+ 22
             textArea.textContent = `${textArea.textContent}${event.target.id}`;
-        }
-        
-        else {
-            console.log('else')
-            textArea.textContent = "";
-            textArea.textContent = (textArea.textContent == 0) ? `${event.target.id}` : `${textArea.textContent}${event.target.id}`;
-        }
+        };
         break;
     }
-    }   
-    console.log(`firstNumber${firstNumber} character${character} secondNumber${secondNumber} result${result}`)   
+    }     
 });
